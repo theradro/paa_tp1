@@ -1,5 +1,8 @@
 import sys
 
+# Create adjacency list from input file
+# Returns adjacency list, number of vertices and number of edge
+# Assumes vertices are v = {1,2,3,...,n}
 def create_adjacency_list():
     adjacency_list = {}
 
@@ -14,6 +17,9 @@ def create_adjacency_list():
     
     return adjacency_list, n, m
 
+# Creates Weights matrix (W) from adjacency list and number of vertices
+# Also creates Predecessor Matrix (PI)
+# Assumes vertices are v = {1,2,3,...,n} 
 def create_w_matrix(adjacency_list, n):
     W = []
     PI = []
@@ -44,19 +50,10 @@ def create_w_matrix(adjacency_list, n):
         PI.append(pi_row)
     return W, PI
 
-
-adjacency_list, n , m = create_adjacency_list()
-
-#print(adjacency_list)
-#print(list(adjacency_list))
-#print(adjacency_list[1])
-#print(list(adjacency_list[1]))
-
-W, PI = create_w_matrix(adjacency_list, n)
-#print(W)
-#print(W[0])
-#print(W[0][1])
-
+# Floyd-Warshall algorithm for all pairs shortest paths
+# Returns shortest distances matrix (D(n))
+# Returns predecessors matrix (Pre(n))
+# Assumes vertices are v = {1,2,3,...,n}
 def floyd_warshall(W, PI):
     n = len(W)
     D = []
@@ -82,12 +79,11 @@ def floyd_warshall(W, PI):
             PRE_k.append(pre_row)
         D.append(D_k)
         PRE.append(PRE_k)
-    #print(D)
     return(D[n],PRE[n])
-D,PRE = floyd_warshall(W,PI)
-#print(D)
-#print(PRE)
 
+# Finds the shortest path with maximum distance
+# Returns vertices (u,v) separately and the maximum distance dmax
+# Assumes vertices are v = {1,2,3,...,n}
 def find_biggest_path(D):
     di = 0
     dmax = 0
@@ -100,10 +96,8 @@ def find_biggest_path(D):
                 di = dmax
     return u, v, dmax
 
-u,v,dmax = find_biggest_path(D)
-
-
-
+# Obtains the list of vertices that compose the path from vertex i to j given a predecessor matrix PRE
+# Assumes vertices are v = {1,2,3,...,n}
 def find_path(PRE, i, j):
     path = []
     path.append(j)
@@ -113,19 +107,12 @@ def find_path(PRE, i, j):
     path.append(i)
     path.reverse()
     return path
-        
-path = find_path(PRE, u, v)
 
-
-
-#print(dmax)
-#print(str(u)+" "+str(v))
-#print(len(path))
-#path_string = ""
-#for vertex in path:
-#    path_string += str(vertex) + " "
-#print(path_string)
-
+# Writes in a file: -the distance of the biggest path (dmax);
+#                   -the starting vertex (u) and end vertex (v) of the biggest path;
+#                   -the number of vertices in the path;
+#                   -the vertices that compose the path
+# Assumes vertices are v = {1,2,3,...,n}
 def write_to_file(dmax, u, v, path):
     sys.stdout.write(str(dmax) + '\n')
     sys.stdout.write(str(u)+ " " +str(v) + '\n')
@@ -135,4 +122,18 @@ def write_to_file(dmax, u, v, path):
         path_string += str(vertex) + " "
     sys.stdout.write(path_string + '\n')
 
-write_to_file(dmax, u, v, path)
+def main():
+    adjacency_list, n , m = create_adjacency_list()
+
+    W, PI = create_w_matrix(adjacency_list, n)
+
+    D,PRE = floyd_warshall(W,PI)
+
+    u,v,dmax = find_biggest_path(D)
+            
+    path = find_path(PRE, u, v)
+
+    write_to_file(dmax, u, v, path)
+
+if __name__ == "__main__":
+    main()
